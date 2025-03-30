@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 
 # Load the saved pipeline (includes preprocessing + classifier)
-model = joblib.load("client_retention_model(1).pkl")
+model = joblib.load("client_retention_model.pkl")
 
 st.title("Client Retention Prediction App")
 st.write("Will the client return to use the service again?")
