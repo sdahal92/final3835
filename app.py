@@ -21,7 +21,7 @@ with st.form("prediction_form"):
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ])
-    latest_lang_english = st.selectbox("Latest Language is English?", [yes, no])  # 1 = Yes, 0 = No
+    latest_lang_english = st.selectbox("Latest Language is English?", ['yes', 'no'])
 
     age = st.slider("Age", 18, 100, 35)
     dependents_qty = st.slider("Number of Dependents", 0, 10, 1)
@@ -32,6 +32,9 @@ with st.form("prediction_form"):
 
 # Predict
 if submitted:
+    # Convert 'yes'/'no' to 1/0
+    lang_is_english = 1 if latest_lang_english.lower() == "yes" else 0
+
     input_df = pd.DataFrame([{
         'contact_method': contact_method,
         'household': household,
@@ -40,7 +43,7 @@ if submitted:
         'status': status,
         'Season': season,
         'Month': month,
-        'latest_language_is_english': latest_lang_english,
+        'latest_language_is_english': lang_is_english,
         'age': age,
         'dependents_qty': dependents_qty,
         'distance_km': distance_km,
