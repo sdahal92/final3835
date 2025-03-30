@@ -3,33 +3,48 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Load the trained pipeline (preprocessing + classifier)
+# Load model pipeline (preprocessing + classifier)
 model = joblib.load("client_retention_model.pkl")
 
-st.title("🔄 Client Retention Predictor (Top Features Only)")
-st.write("Prediction based on top 5 most important features.")
+st.title("🔄 Client Retention Predictor")
+st.write("Predict whether a client is likely to return based on profile.")
 
-# Input form for top 5 features only
+# Input form
 with st.form("prediction_form"):
-    season = st.selectbox("Season", ['Spring', 'Summer', 'Fall', 'Winter'])
+    contact_method = st.selectbox("Contact Method", ['phone', 'email', 'text'])
+    household = st.selectbox("Household Type", ['single', 'family', 'group'])
+    preferred_language = st.selectbox("Preferred Language", ['english', 'arabic', 'spanish'])
+    sex = st.selectbox("Sex", ['Male', 'Female'])
+    status = st.selectbox("Status", ['new', 'returning'])
+    season = st.selectbox("Season", ['Winter', 'Spring', 'Summer', 'Fall'])
     month = st.selectbox("Month", [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ])
-    preferred_language = st.selectbox("Preferred Language", ['english', 'other'])
-    distance_km = st.slider("Distance to Location (km)", 0.0, 50.0, 5.0)
+    latest_lang_english = st.selectbox("Latest Language is English?", [1, 0])  # 1 = Yes, 0 = No
+
     age = st.slider("Age", 18, 100, 35)
+    dependents_qty = st.slider("Number of Dependents", 0, 10, 1)
+    distance_km = st.slider("Distance (in km)", 0.0, 100.0, 5.0)
+    num_of_contact_methods = st.slider("Number of Contact Methods", 1, 5, 2)
 
     submitted = st.form_submit_button("Predict")
 
-# Prepare input and predict
+# Predict
 if submitted:
     input_df = pd.DataFrame([{
+        'contact_method': contact_method,
+        'household': household,
+        'preferred_languages': preferred_language,
+        'sex_new': sex,
+        'status': status,
         'Season': season,
         'Month': month,
-        'preferred_languages': preferred_language,
+        'latest_language_is_english': latest_lang_english,
+        'age': age,
+        'dependents_qty': dependents_qty,
         'distance_km': distance_km,
-        'age': age
+        'num_of_contact_methods': num_of_contact_methods
     }])
 
     prediction = model.predict(input_df)[0]
