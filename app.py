@@ -21,7 +21,7 @@ with st.form("prediction_form"):
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ])
-    latest_lang_english = st.selectbox("Latest Language is English?", [1, 0])  # 1 = Yes, 0 = No
+    latest_lang_english = st.selectbox("Latest Language is English?", [yes, no])  # 1 = Yes, 0 = No
 
     age = st.slider("Age", 18, 100, 35)
     dependents_qty = st.slider("Number of Dependents", 0, 10, 1)
