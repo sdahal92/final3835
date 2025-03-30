@@ -1,38 +1,43 @@
+# app.py
 import streamlit as st
 import pandas as pd
 import joblib
 
-# Load the saved pipeline (preprocessing + classifier)
+# Load the trained pipeline (preprocessing + classifier)
 model = joblib.load("client_retention_model.pkl")
 
-st.title("Client Retention Prediction App")
-st.markdown("This app predicts whether a client will return for service.")
+st.title("🔄 Client Retention Predictor (Top Features Only)")
+st.write("Prediction based on top 5 most important features.")
 
-# Collect user input
-input_data = {
-    'contact_method': st.sidebar.selectbox("Contact Method", ['email', 'phone', 'text']),
-    'household': st.sidebar.selectbox("Household", ['single', 'family', 'group']),
-    'preferred_languages': st.sidebar.selectbox("Preferred Language", ['English', 'Arabic', 'Spanish']),
-    'sex_new': st.sidebar.selectbox("Sex", ['Male', 'Female']),
-    'status': st.sidebar.selectbox("Status", ['new', 'returning']),
-    'Season': st.sidebar.selectbox("Season", ['Winter', 'Spring', 'Summer', 'Fall']),
-    'Month': st.sidebar.selectbox("Month", ['January', 'February', 'March', 'April', 'May', 'June', 
-                                             'July', 'August', 'September', 'October', 'November', 'December']),
-    'latest_language_is_english': st.sidebar.selectbox("Latest Language is English?", [0, 1]),
-    'age': st.sidebar.slider("Age", 18, 90, 35),
-    'dependents_qty': st.sidebar.slider("Number of Dependents", 0, 10, 1),
-    'distance_km': st.sidebar.slider("Distance (in km)", 0, 100, 10),
-    'num_of_contact_methods': st.sidebar.slider("Number of Contact Methods", 1, 5, 2)
-}
+# Input form for top 5 features only
+with st.form("prediction_form"):
+    season = st.selectbox("Season", ['Spring', 'Summer', 'Fall', 'Winter'])
+    month = st.selectbox("Month", [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ])
+    preferred_language = st.selectbox("Preferred Language", ['english', 'other'])
+    distance_km = st.slider("Distance to Location (km)", 0.0, 50.0, 5.0)
+    age = st.slider("Age", 18, 100, 35)
 
-# Convert input to DataFrame
-input_df = pd.DataFrame([input_data])
+    submitted = st.form_submit_button("Predict")
 
-# Make prediction
-if st.button("Predict"):
+# Prepare input and predict
+if submitted:
+    input_df = pd.DataFrame([{
+        'Season': season,
+        'Month': month,
+        'preferred_languages': preferred_language,
+        'distance_km': distance_km,
+        'age': age
+    }])
+
     prediction = model.predict(input_df)[0]
-    prediction_proba = model.predict_proba(input_df)[0][1]  # probability of class "yes"
+    probability = model.predict_proba(input_df)[0][1]
 
+    st.markdown("---")
     st.subheader("Prediction Result:")
-    st.success(f"Client will return: {'Yes' if prediction == 1 else 'No'}")
-    st.info(f"Probability of returning: {prediction_proba:.2f}")
+    if prediction == 1:
+        st.success(f"✅ Client is likely to return (Probability: {round(probability, 2)})")
+    else:
+        st.warning(f"⚠️ Client may not return (Probability: {round(probability, 2)})")
